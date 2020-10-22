@@ -71,6 +71,7 @@ currentdate = Date.today
 
 while counter > 0 do
   begin
+    # If it is a future date, don't process...
     if currentdate - date < 0 then
        puts "Future date ( "+date.strftime("%Y-%b-%d")+" ) - Today is ( "+currentdate.strftime("%Y-%b-%d")+" ) - exiting"
        break
@@ -106,8 +107,14 @@ while counter > 0 do
       File.delete(zipfile); # Most likely a zero size file 
     end
     if e.message.include?("404") || e.message.include?("302") then
+      if currentdate - date == 0 then
+        # If it for 'today', maybe the file is not yet generated...
+        # hence we should avoid creating a 404 file and re-attempt next time...
+        puts "Today's copy is not yet available"
+      else
         File.open("#{target_file}.404", "w")
         puts "Created a 404 file"
+      end
     end
   end
 
